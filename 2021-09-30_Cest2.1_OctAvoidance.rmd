@@ -1,0 +1,92 @@
+---
+title: "Cest2.1_OctAvoidance"
+author: "Tia"
+date: "9/29/2021"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+30pct Octanol Avoidance
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+files <- fs::dir_ls(recurse = TRUE, glob = "data/octanol_3*.csv")
+merged_data <- files %>% purrr::map_df(., readr::read_csv, .id = "filename")
+
+```
+
+Plotting by Genotype
+```{R}
+merged_data %>%
+  ggplot(aes(x = genotype, y = response.time)) +
+  geom_boxplot() +
+  geom_point(aes(color = genotype)) +
+  labs(title = "30% oct avoidance in cest-2.1") +
+  scale_fill_manual(values = c("green", "grey")) +
+  scale_color_manual(values = c("green", "grey"))
+  
+```
+Plot by date
+
+```{r}
+merged_data %>%
+  ggplot(aes(x = genotype, y = response.time)) +
+  geom_boxplot(aes(fill = genotype)) +
+  labs(title = "30% oct avoidance in cest-2.1") +
+  scale_fill_manual(values = c("green", "grey")) +
+  facet_grid(~date)
+```
+
+Plotting by Genotype (excluding 8-27)
+```{R}
+merged_data %>%
+  filter(date != "2021-08-27") %>%
+  ggplot(aes(x = genotype, y = response.time)) +
+  geom_boxplot(aes(fill= genotype)) +
+  labs(title = "30% oct avoidance in cest-2.1") +
+  scale_fill_manual(values = c("green", "grey")) 
+  
+```
+
+Plotting by Experimenter
+
+```{r}
+merged_data %>%
+  filter(date != "2021-08-27") %>%
+  ggplot(aes(x = experimenter, y = response.time)) +
+  geom_boxplot(aes(fill = genotype)) +
+  labs(title = "Via Experiementer") +
+  scale_fill_manual(values = c("blue", "grey"))
+```
+
+Plotting by Genotype (Most recent Data)
+```{R}
+subset(merged_data, date== "2021-09-29")%>%
+  ggplot(aes(x = genotype, y = response.time)) +
+  geom_boxplot(aes(fill= genotype)) +
+  labs(title = "30% oct avoidance in cest-2.1") +
+  scale_fill_manual(values = c("green", "grey")) 
+```
+
+
+Let's plot the means:
+
+
+```{r}
+merged_data %>%
+  filter(date != "2021-08-27") %>%
+  ggplot(aes(x = genotype, y = response.time)) +
+  stat_summary(fun.data = "mean_se")
+```
+
+
+Let's do a simple stat test:
+
+```{r}
+library(magrittr)
+merged_data %>%
+  filter(date != "2021-08-27") %$%
+  t.test(response.time ~ genotype)
+```
+
