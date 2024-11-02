@@ -34,3 +34,13 @@ ggplot(filtered_data, aes(x = Genotype, y = Response.time)) +
   theme(axis.text = element_text(face = "italic")) +
   theme(text = element_text(size = 10)) +
   labs(y = "Time(sec)")
+
+library(lme4)
+grouped_means <- filtered_data %>%
+  group_by(Genotype, Date) %>%
+  summarize(Response.time = mean(Response.time, na.rm = TRUE))
+
+m1 <- lm(formula = log(Response.time) ~ Genotype,
+      data = filtered_data)
+m2 <- lm(formula = Response.time ~ Genotype,
+         data = grouped_means)
